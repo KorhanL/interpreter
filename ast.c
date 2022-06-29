@@ -64,3 +64,16 @@ node* be(bin_op fp, node *a, node *b) {
 
 	return n;
 }
+
+// copy a node
+node* copy(node *c) {
+	node *n = malloc(sizeof(node));
+	n->type = c->type;
+	n->value = c->value;
+	n->op = c->op;
+	n->a = c->a;
+	n->b = c->b;
+	n->fp = c->fp;
+
+	return n;
+}

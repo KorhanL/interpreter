@@ -8,10 +8,11 @@ typedef enum {
 	NIL
 } ntype;
 
-typedef struct ASTNode node;
+typedef struct Node node;
+
 typedef node*(*bin_op)(node*, node*);
 
-struct ASTNode {
+struct Node {
 	ntype type;
 	// if VALUE
 	int value;
@@ -27,5 +28,6 @@ node* n();
 node* e(char op, node *a, node *b);
 node* b(bin_op fp);
 node* be(bin_op fp, node *a, node *b);
+node* copy(node *n);
 
 #endif

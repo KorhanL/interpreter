@@ -1,18 +1,29 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
+#include "ll.h"
 
 void die(char *reason) {
 	printf("Oh no! %s\n", reason);
 	exit(1);
 }
 
-
 node *add(node *a, node *b) {
 	if (a->type != VALUE || b->type != VALUE)
 		die("add called with wrong types");
 	return v(a->value + b->value);
+}
+
+node *sub(node *a, node *b) {
+	if (a->type != VALUE || b->type != VALUE)
+		die("sub called with wrong types");
+	return v(a->value - b->value);
+}
+
+node *mul(node *a, node *b) {
+	if (a->type != VALUE || b->type != VALUE)
+		die("mul called with wrong types");
+	return v(a->value * b->value);
 }
 
 void printexpr(node *n) {
@@ -44,7 +55,7 @@ void printexpr(node *n) {
 		}
 }
 
-node *eval(node* n) {
+node *eval(node* n, envnode *env) {
 	node *r = 0;
 	switch(n->type) {
 		// nothing to evaluate, just continue as usual
@@ -54,18 +65,30 @@ node *eval(node* n) {
 			break;
 		// substitute with something from the environment, eval subtrees then eval new expression
 		case EXPRESSION:
-			die("expression evaluaton not implemented");
+			if (!(r = envget(&env, n->op)))
+				die("undefined operator");
+			r->a = n->a;
+			r->b = n->b;
+			r = eval(r, env);
 			break;
 		// just run the code
 		case BUILTIN:
-			r = n->fp(eval(n->a), eval(n->b));
+			r = n->fp(eval(n->a, env), eval(n->b, env));
 			break;
 	}
 	return r;
 }
 
 int main() {
-	printexpr(eval(
-			be(&add, be(&add, v(3), v(6)), v(-4))
-			));
+	envnode *env = 0;
+	envput(&env, '+', b(&add));
+	envput(&env, '-', b(&sub));
+	envput(&env, '*', b(&mul));
+
+	node *expr = e('*', v(10), e('-', e('+', v(3), v(6)), v(-4)));
+
+	printexpr(expr);
+	printf("\n");
+	printexpr(eval(expr , env));
+	printf("\n");
 }
