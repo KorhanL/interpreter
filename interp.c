@@ -1,80 +1,18 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "ast.h"
 
-// since i lost the original source i now have to reconstruct it from memory :(
-
-typedef enum {
-	VALUE,
-	BUILTIN,
-	EXPRESSION,
-	NIL
-} ntype;
-
-typedef struct ASTNode node;
-typedef node*(*bin_op)(node*, node*);
-
-struct ASTNode {
-	ntype type;
-	// if VALUE
-	int value;
-	// if EXPRESSION
-	char op;
-	node *a, *b;
-	// if BUILTIN
-	bin_op fp;
-};
-
-// create a value
-node* v(int x) {
-	node *n = malloc(sizeof(node));
-	n->type = VALUE;
-	n->value = x;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = 0;
-
-	return n;
+void die(char *reason) {
+	printf("Oh no! %s\n", reason);
+	exit(1);
 }
 
-// create a nil
-node* n() {
-	node *n = malloc(sizeof(node));
-	n->type = NIL;
-	n->value = 0;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = 0;
 
-	return n;
-}
-
-// create an expression
-node* e(char op, node *a, node *b) {
-	node *n = malloc(sizeof(node));
-	n->type = EXPRESSION;
-	n->value = 0;
-	n->op = op;
-	n->a = a;
-	n->b = b;
-	n->fp = 0;
-
-	return n;
-}
-
-// create a builtin
-node* b(bin_op fp) {
-	node *n = malloc(sizeof(node));
-	n->type = BUILTIN;
-	n->value = 0;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = fp;
-
-	return n;
+node *add(node *a, node *b) {
+	if (a->type != VALUE || b->type != VALUE)
+		die("add called with wrong types");
+	return v(a->value + b->value);
 }
 
 void printexpr(node *n) {
@@ -107,24 +45,27 @@ void printexpr(node *n) {
 }
 
 node *eval(node* n) {
+	node *r = 0;
 	switch(n->type) {
 		// nothing to evaluate, just continue as usual
 		case VALUE:
 		case NIL:
-			return n;
+			r = n;
 			break;
+		// substitute with something from the environment, eval subtrees then eval new expression
 		case EXPRESSION:
-			return n;
+			die("expression evaluaton not implemented");
 			break;
+		// just run the code
 		case BUILTIN:
-			return n;
+			r = n->fp(eval(n->a), eval(n->b));
 			break;
 	}
-	return 0;
+	return r;
 }
 
 int main() {
-	printexpr(
-			e('+', e('-', v(3), v(6)), v(-4))
-			);
+	printexpr(eval(
+			be(&add, be(&add, v(3), v(6)), v(-4))
+			));
 }
