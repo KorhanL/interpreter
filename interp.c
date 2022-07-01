@@ -26,6 +26,12 @@ node *mul(node *a, node *b) {
 	return v(a->value * b->value);
 }
 
+// this probably isn't right, this is less
+// like cons and more like a pair
+node *cons(node *a, node *b) {
+	return e('c', copy(a), copy(b));
+}
+
 void printexpr(node *n) {
 	if (!n)
 		printf("null pointer node");
@@ -63,7 +69,8 @@ node *eval(node* n, envnode *env) {
 		case NIL:
 			r = n;
 			break;
-		// substitute with something from the environment, eval subtrees then eval new expression
+		// substitute with something from the environment
+		// eval subtrees then eval new expression
 		case EXPRESSION:
 			if (!(r = envget(&env, n->op)))
 				die("undefined operator");
@@ -84,8 +91,10 @@ int main() {
 	envput(&env, '+', b(&add));
 	envput(&env, '-', b(&sub));
 	envput(&env, '*', b(&mul));
+	envput(&env, 'c', b(&cons));
 
-	node *expr = e('*', v(10), e('-', e('+', v(3), v(6)), v(-4)));
+	//node *expr = e('*', v(10), e('-', e('+', v(3), v(6)), v(-4)));
+	node *expr = e('c', v(3), e('c', v(2), n()));
 
 	printexpr(expr);
 	printf("\n");
