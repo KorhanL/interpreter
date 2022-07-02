@@ -32,38 +32,6 @@ node *cons(node *a, node *b) {
 	return e('c', a, b);
 }
 
-void printexpr(node *n) {
-	if (!n)
-		printf("null pointer node");
-	else
-		switch(n->type) {
-			// nothing to evaluate, just continue as usual
-			case VALUE:
-				printf("%d", n->value);
-				break;
-			case NIL:
-				printf("NIL");
-				break;
-			case EXPRESSION:
-				printf("(%c ", n->op);
-				printexpr(n->a);
-				printf(" ");
-				printexpr(n->b);
-				printf(")");
-				break;
-			case BUILTIN:
-				printf("(%p ", n->fp);
-				printexpr(n->a);
-				printf(" ");
-				printexpr(n->b);
-				printf(")");
-				break;
-			case VARIABLE:
-				printf("v:%c", n->op);
-				break;
-				break;
-		}
-}
 
 // spaghetti
 node *let(node *bindings, node *body) {

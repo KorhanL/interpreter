@@ -32,5 +32,6 @@ node* b(bin_op fp);
 node* be(bin_op fp, node *a, node *b);
 node* copy(node *n);
 node* deepcopy(node *n);
+void printexpr(node *n);
 
 #endif
