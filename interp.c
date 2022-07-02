@@ -29,7 +29,7 @@ node *mul(node *a, node *b) {
 // this probably isn't right, this is less
 // like cons and more like a pair
 node *cons(node *a, node *b) {
-	return e('c', copy(a), copy(b));
+	return e('c', a, b);
 }
 
 void printexpr(node *n) {
@@ -58,8 +58,40 @@ void printexpr(node *n) {
 				printexpr(n->b);
 				printf(")");
 				break;
+			case VARIABLE:
+				printf("v:%c", n->op);
+				break;
+				break;
 		}
 }
+
+// spaghetti
+node *let(node *bindings, node *body) {
+	printf("bindings:");
+	printexpr(bindings);
+	printf("\nbody:");
+	printexpr(body);
+	printf("\n");
+	if (body->type ==  VARIABLE)
+		for (; bindings->type != NIL; bindings = bindings->b) {
+			if (bindings->type != EXPRESSION && bindings->op != 'c')
+				die("Invalid binding list for let");
+			if (bindings->a->type != EXPRESSION && bindings->a->op != 'c')
+				die("Invalid binding list for let");
+
+			node *var = bindings->a->a;
+			node *sub = bindings->a->b;
+
+			if (var->type != VARIABLE)
+				die("Invalid binding list for let");
+			if (body->op == var->op)
+				return deepcopy(sub);
+		}
+	else if (body->type == EXPRESSION)
+		return e(body->op, let(bindings, body->a), let(bindings, body->b));
+	return body;
+}
+
 
 node *eval(node* n, envnode *env) {
 	node *r = 0;
@@ -67,13 +99,14 @@ node *eval(node* n, envnode *env) {
 		// nothing to evaluate, just continue as usual
 		case VALUE:
 		case NIL:
+		case VARIABLE:
 			r = n;
 			break;
 		// substitute with something from the environment
 		// eval subtrees then eval new expression
 		case EXPRESSION:
 			if (!(r = envget(&env, n->op)))
-				die("undefined operator");
+				die("Undefined operator");
 			r->a = n->a;
 			r->b = n->b;
 			r = eval(r, env);
@@ -92,9 +125,25 @@ int main() {
 	envput(&env, '-', b(&sub));
 	envput(&env, '*', b(&mul));
 	envput(&env, 'c', b(&cons));
+	envput(&env, 'l', b(&let));
 
 	//node *expr = e('*', v(10), e('-', e('+', v(3), v(6)), v(-4)));
-	node *expr = e('c', v(3), e('c', v(2), n()));
+	//node *expr = e('c', v(3), e('c', v(2), n()));
+	node *expr = e('l',
+				// Binidngs
+				e('c', e('c', c('x'), v(6)),
+				e('c', e('c', c('y'), v(5)),
+				n())),
+				// body
+				e('+', c('x'), c('y')));
+	/*
+	node *expr = e('l',
+				// Binidngs
+				e('c', e('c', c('y'), v(6)),
+				n()),
+				// body
+				c('y'));
+				*/
 
 	printexpr(expr);
 	printf("\n");

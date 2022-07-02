@@ -14,6 +14,18 @@ node* v(int x) {
 	return n;
 }
 
+// create a variable
+node* c(char c) {
+	node *n = malloc(sizeof(node));
+	n->type = VARIABLE;
+	n->value = 0;
+	n->op = c;
+	n->a = 0;
+	n->b = 0;
+	n->fp = 0;
+
+	return n;
+}
 // create a nil
 node* n() {
 	node *n = malloc(sizeof(node));
@@ -75,5 +87,25 @@ node* copy(node *c) {
 	n->b = c->b;
 	n->fp = c->fp;
 
+	return n;
+}
+
+// deepcopy a node
+// this also makes a copy of any subnodes the node has
+node* deepcopy(node *c) {
+	node *n = malloc(sizeof(node));
+	n->type = c->type;
+	n->value = c->value;
+	n->op = c->op;
+
+	if (c->a)
+		n->a = deepcopy(c->a);
+	else
+		n->a = 0;
+	if (c->b)
+		n->b = deepcopy(c->b);
+	else
+		n->b = 0;
+	n->fp = c->fp;
 	return n;
 }

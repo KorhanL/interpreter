@@ -2,10 +2,11 @@
 #define AST_H
 
 typedef enum {
-	VALUE,
+	NIL,
 	BUILTIN,
+	VALUE,
 	EXPRESSION,
-	NIL
+	VARIABLE
 } ntype;
 
 typedef struct Node node;
@@ -16,7 +17,7 @@ struct Node {
 	ntype type;
 	// if VALUE
 	int value;
-	// if EXPRESSION
+	// if EXPRESSION or VARIABLE
 	char op;
 	node *a, *b;
 	// if BUILTIN
@@ -24,10 +25,12 @@ struct Node {
 };
 
 node* v(int x);
+node* c(char c);
 node* n();
 node* e(char op, node *a, node *b);
 node* b(bin_op fp);
 node* be(bin_op fp, node *a, node *b);
 node* copy(node *n);
+node* deepcopy(node *n);
 
 #endif
