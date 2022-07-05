@@ -1,79 +1,60 @@
 #include "ast.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
-// create a value
-node* v(int x) {
+// create a NUMBER
+node* n(int x) {
 	node *n = malloc(sizeof(node));
-	n->type = VALUE;
-	n->value = x;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = 0;
+	n->type = NUMBER;
+	n->value.number = x;
 
 	return n;
 }
 
-// create a variable
-node* c(char c) {
+// create a SYMBOL
+node* s(char c) {
 	node *n = malloc(sizeof(node));
-	n->type = VARIABLE;
-	n->value = 0;
-	n->op = c;
-	n->a = 0;
-	n->b = 0;
-	n->fp = 0;
+	n->type = SYMBOL;
+	n->value.symbol = c;
 
 	return n;
 }
-// create a nil
-node* n() {
+// create a NIL
+node* nil() {
 	node *n = malloc(sizeof(node));
 	n->type = NIL;
-	n->value = 0;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = 0;
 
 	return n;
 }
 
-// create an expression
-node* e(char op, node *a, node *b) {
+// create an EXPRESSION
+node* e(int count, ...) {
+	if (count < 1)
+		//TODO: Better exception handling
+		exit(1);
+
+	va_list args;
+	va_start(args, count);
+	node* h = va_arg(args, node*);
+	node* p = h;
+	while(--count) {
+		p->tail = va_arg(args, node*);
+		p = p->tail;
+	}
+
 	node *n = malloc(sizeof(node));
 	n->type = EXPRESSION;
-	n->value = 0;
-	n->op = op;
-	n->a = a;
-	n->b = b;
-	n->fp = 0;
+	n->value.expression = h;
 
 	return n;
 }
 
-// create a builtin
-node* b(bin_op fp) {
+// create a PROCEDURE
+node* p(proc fp) {
 	node *n = malloc(sizeof(node));
-	n->type = BUILTIN;
-	n->value = 0;
-	n->op = 0;
-	n->a = 0;
-	n->b = 0;
-	n->fp = fp;
-
-	return n;
-}
-
-node* be(bin_op fp, node *a, node *b) {
-	node *n = malloc(sizeof(node));
-	n->type = BUILTIN;
-	n->value = 0;
-	n->op = 0;
-	n->a = a;
-	n->b = b;
-	n->fp = fp;
+	n->type = PROCEDURE;
+	n->value.procedure = fp;
 
 	return n;
 }
@@ -83,10 +64,6 @@ node* copy(node *c) {
 	node *n = malloc(sizeof(node));
 	n->type = c->type;
 	n->value = c->value;
-	n->op = c->op;
-	n->a = c->a;
-	n->b = c->b;
-	n->fp = c->fp;
 
 	return n;
 }
@@ -96,18 +73,17 @@ node* copy(node *c) {
 node* deepcopy(node *c) {
 	node *n = malloc(sizeof(node));
 	n->type = c->type;
-	n->value = c->value;
-	n->op = c->op;
 
-	if (c->a)
-		n->a = deepcopy(c->a);
+	if (c->tail)
+		n->tail = deepcopy(c->tail);
 	else
-		n->a = 0;
-	if (c->b)
-		n->b = deepcopy(c->b);
+		n->tail = 0;
+
+	if (c->type == EXPRESSION)
+		n->value.expression = deepcopy(c->value.expression);
 	else
-		n->b = 0;
-	n->fp = c->fp;
+		n->value = c->value;
+
 	return n;
 }
 
@@ -115,32 +91,28 @@ node* deepcopy(node *c) {
 void printexpr(node *n) {
 	if (!n)
 		printf("null pointer node");
-	else
+	else {
 		switch(n->type) {
 			// nothing to evaluate, just continue as usual
-			case VALUE:
-				printf("%d", n->value);
+			case NUMBER:
+				printf("%d", n->value.number);
 				break;
 			case NIL:
 				printf("NIL");
 				break;
 			case EXPRESSION:
-				printf("(%c ", n->op);
-				printexpr(n->a);
-				printf(" ");
-				printexpr(n->b);
+				printf("(");
+				printexpr(n->value.expression);
 				printf(")");
 				break;
-			case BUILTIN:
-				printf("(%p ", n->fp);
-				printexpr(n->a);
-				printf(" ");
-				printexpr(n->b);
-				printf(")");
+			case PROCEDURE:
+				printf("(%p ", n->value.procedure);
 				break;
-			case VARIABLE:
-				printf("v:%c", n->op);
-				break;
+			case SYMBOL:
+				printf("S:%c", n->value.symbol);
 				break;
 		}
+		if (n->tail)
+			printexpr(n->tail);
+	}
 }

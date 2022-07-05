@@ -19,6 +19,7 @@ void die(char *reason) {
 	exit(1);
 }
 
+/*
 node *add(node *a, node *b) {
 	if (a->type != VALUE || b->type != VALUE)
 		die("add called with wrong types");
@@ -70,15 +71,17 @@ node *let(node *bindings, node *body) {
 		return e(body->op, let(bindings, body->a), let(bindings, body->b));
 	return body;
 }
+*/
 
 
+/*
 node *eval(node* n, envnode *env) {
 	node *r = 0;
 	switch(n->type) {
 		// nothing to evaluate, just continue as usual
-		case VALUE:
 		case NIL:
-		case VARIABLE:
+		case SYMBOL:
+		case NUMBER:
 			r = n;
 			break;
 		// substitute with something from the environment
@@ -91,23 +94,37 @@ node *eval(node* n, envnode *env) {
 			r = eval(r, env);
 			break;
 		// just run the code
-		case BUILTIN:
+		case PROCEDURE:
 			r = n->fp(eval(n->a, env), eval(n->b, env));
 			break;
 	}
 	return r;
 }
+*/
 
 int main() {
-	envnode *env = 0;
+	//envnode *env = 0;
+	/*
 	envput(&env, '+', b(&add));
 	envput(&env, '-', b(&sub));
 	envput(&env, '*', b(&mul));
 	envput(&env, 'c', b(&cons));
 	envput(&env, 'l', b(&let));
+	*/
 
-	//node *expr = e('*', v(10), e('-', e('+', v(3), v(6)), v(-4)));
+	node *expr = e(3,
+			s('*'),
+			n(10),
+			e(3,
+				s('-'),
+				e(3,
+					s('+'),
+					n(3),
+					n(6)),
+				n(-4)));
 	//node *expr = e('c', v(3), e('c', v(2), n()));
+	
+	/*
 	node *expr = e('l',
 				// Binidngs
 				e('c', e('c', c('x'), v(6)),
@@ -115,6 +132,7 @@ int main() {
 				n())),
 				// body
 				e('+', c('x'), c('y')));
+	*/
 	/*
 	node *expr = e('l',
 				// Binidngs
@@ -126,6 +144,6 @@ int main() {
 
 	printexpr(expr);
 	printf("\n");
-	printexpr(eval(expr , env));
+	//printexpr(eval(expr , env));
 	printf("\n");
 }

@@ -1,37 +1,43 @@
 #ifndef ast_h
 #define ast_h
 
+typedef struct Node node;
+typedef node*(*proc)(node*);
+
 typedef enum {
 	NIL,
-	BUILTIN,
-	VALUE,
+	SYMBOL,
 	EXPRESSION,
-	VARIABLE
+	PROCEDURE,
+	NUMBER
 } ntype;
 
-typedef struct Node node;
-
-typedef node*(*bin_op)(node*, node*);
+typedef union NValue {
+	char symbol;
+	node *expression;
+	proc procedure;
+	int number;
+} nvalue;
 
 struct Node {
+	node *tail;
 	ntype type;
-	// if VALUE
-	int value;
-	// if EXPRESSION or VARIABLE
-	char op;
-	node *a, *b;
-	// if BUILTIN
-	bin_op fp;
+	nvalue value;
 };
 
-node* v(int x);
-node* c(char c);
-node* n();
-node* e(char op, node *a, node *b);
-node* b(bin_op fp);
-node* be(bin_op fp, node *a, node *b);
+// leaves
+node* n(int x);
+node* s(char c);
+node* nil();
+
+// list
+node* e(int count, ...);
+
+// for internal use
+node* p(proc fp);
 node* copy(node *n);
 node* deepcopy(node *n);
+
 void printexpr(node *n);
 
 #endif
