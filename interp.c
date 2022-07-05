@@ -1,7 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
-#include "ll.h"
+#include "env.h"
+
+// Fixes TODO:
+// Change the AST node so that it is more like a linked list
+// there's a next pointer, and a union for the contained value
+// when evaluating, assume the first member of the list is a procedure
+// and look it up in the environment
+//
+// the execution of builtin functions and the further evaluation should
+// be more closely coupled so that the builtins can have some degree of
+// influence over the evaluation order
+// (let) needs to be able to 'pause' the evaluation to complete the substitution
 
 void die(char *reason) {
 	printf("Oh no! %s\n", reason);
