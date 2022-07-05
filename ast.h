@@ -1,5 +1,5 @@
-#ifndef AST_H
-#define AST_H
+#ifndef ast_h
+#define ast_h
 
 typedef enum {
 	NIL,
