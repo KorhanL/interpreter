@@ -22,6 +22,7 @@ node* s(char c) {
 
 	return n;
 }
+
 // create a NIL
 node* nil() {
 	node *n = malloc(sizeof(node));
@@ -50,12 +51,12 @@ node* _e(size_t count, ...) {
 	return n;
 }
 
-
 // create a PROCEDURE
-node* p(proc fp) {
+node* p(fp impl, node* args) {
 	node *n = malloc(sizeof(node));
 	n->type = PROCEDURE;
-	n->value.procedure = fp;
+	n->value.procedure.impl = impl;
+	n->value.procedure.args = args;
 	n->tail = 0;
 
 	return n;
@@ -90,6 +91,15 @@ node* deepcopy(node *c) {
 	return n;
 }
 
+// get the length of a list of nodes
+int nodelength(node *n) {
+	int count = 0;
+	while((n = n->tail))
+		count++;
+
+	return count;
+}
+
 // print an expression
 void printexpr(node *n) {
 	if (!n)
@@ -108,7 +118,10 @@ void printexpr(node *n) {
 				printf(")");
 				break;
 			case PROCEDURE:
-				printf("(%p ", n->value.procedure);
+				printf("[");
+				printf("%p ", n->value.procedure.impl);
+				printexpr(n->value.procedure.args);
+				printf("]");
 				break;
 			case SYMBOL:
 				printf("S:%c", n->value.symbol);

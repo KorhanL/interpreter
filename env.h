@@ -2,8 +2,7 @@
 #define env_h
 
 #include "ast.h"
-
-typedef struct EnvNode envnode;
+#include "typedefs.h"
 
 struct EnvNode {
 	envnode *next;

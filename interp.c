@@ -3,29 +3,29 @@
 #include "ast.h"
 #include "env.h"
 
-// Fixes TODO:
-// Change the AST node so that it is more like a linked list
-// there's a next pointer, and a union for the contained value
-// when evaluating, assume the first member of the list is a procedure
-// and look it up in the environment
-//
-// the execution of builtin functions and the further evaluation should
-// be more closely coupled so that the builtins can have some degree of
-// influence over the evaluation order
-// (let) needs to be able to 'pause' the evaluation to complete the substitution
 
 void die(char *reason) {
-	printf("Oh no! %s\n", reason);
+	printf("Oh no! %s :(\n", reason);
 	exit(1);
 }
 
-/*
-node *add(node *a, node *b) {
-	if (a->type != VALUE || b->type != VALUE)
-		die("add called with wrong types");
-	return v(a->value + b->value);
+node *eval(node* n, envnode *env);
+
+node *add(node* rand, envnode* env) {
+	if (nodelength(rand) < 2)
+		die("add was called with less than two operands");
+	int sum = 0;
+	do {
+		rand = eval(rand, env);
+		if(rand->type != NUMBER)
+			die("add was called with wrong types");
+		sum += rand->value.number;
+	} while ((rand = rand->tail));
+
+	return n(sum);
 }
 
+/*
 node *sub(node *a, node *b) {
 	if (a->type != VALUE || b->type != VALUE)
 		die("sub called with wrong types");
@@ -73,45 +73,70 @@ node *let(node *bindings, node *body) {
 }
 */
 
-
-/*
 node *eval(node* n, envnode *env) {
+	if (!n)
+		die("eval was called with null pointer");
 	node *r = 0;
 	switch(n->type) {
-		// nothing to evaluate, just continue as usual
+		// These evaluate to themselves
 		case NIL:
-		case SYMBOL:
 		case NUMBER:
 			r = n;
 			break;
-		// substitute with something from the environment
-		// eval subtrees then eval new expression
+
+		// Turn the head of the list into a procedure,
+		// then apply it to the tail
 		case EXPRESSION:
-			if (!(r = envget(&env, n->op)))
-				die("Undefined operator");
-			r->a = n->a;
-			r->b = n->b;
+			if (!n->value.expression)
+				die("Cannot evaluate empty list");
+			r = eval(n->value.expression, env);
+			if (r->type != PROCEDURE)
+				die("First member of expression wasn't a procedure");
+			if (r->value.procedure.args)
+				die("Procedure in expression had arguments (VERY BAD)");
+			r->value.procedure.args = r->tail;
+			r->tail = 0;
 			r = eval(r, env);
+			free(n);
 			break;
-		// just run the code
+
+		// Apply the procedure to its arguments
+		// The procedure is responsible for deciding if
+		// it evaluates its operands
 		case PROCEDURE:
-			r = n->fp(eval(n->a, env), eval(n->b, env));
+			r = n->value.procedure.impl(
+					n->value.procedure.args, env);
+			break;
+
+		// Replace the symbol with the definition from
+		// the environment
+		case SYMBOL:
+			if(!(r = envget(&env, n->value.symbol)))
+				die("Unbound symbol");
+			r->tail = n->tail;
+			free(n);
 			break;
 	}
+	/* not sure if this should be here
+	if (r->tail)
+		r->tail = eval(r->tail, env);
+	*/
 	return r;
 }
-*/
 
 int main() {
-	//envnode *env = 0;
+	envnode *env = 0;
+
+	envput(&env, '+', p(&add, 0));
+	envput(&env, 'x', n(3));
 	/*
-	envput(&env, '+', b(&add));
 	envput(&env, '-', b(&sub));
 	envput(&env, '*', b(&mul));
 	envput(&env, 'c', b(&cons));
 	envput(&env, 'l', b(&let));
 	*/
 
+	/*
 	node *expr = e(
 			s('*'),
 			n(10),
@@ -123,6 +148,9 @@ int main() {
 					n(6)),
 				n(-4)));
 	//node *expr = e('c', v(3), e('c', v(2), n()));
+	*/
+
+	node *expr = e(s('+'), s('x'), n(1), n(3), n(6), n(-1));
 	
 	/*
 	node *expr = e('l',
@@ -144,6 +172,6 @@ int main() {
 
 	printexpr(expr);
 	printf("\n");
-	//printexpr(eval(expr , env));
+	printexpr(eval(expr , env));
 	printf("\n");
 }

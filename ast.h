@@ -3,9 +3,8 @@
 
 #include <stddef.h>
 #include "vararg.h"
-
-typedef struct Node node;
-typedef node*(*proc)(node*);
+#include "typedefs.h"
+#include "env.h"
 
 typedef enum {
 	NIL,
@@ -14,6 +13,11 @@ typedef enum {
 	PROCEDURE,
 	NUMBER
 } ntype;
+
+typedef struct Procedure {
+	fp impl;
+	node* args;
+} proc;
 
 typedef union NValue {
 	char symbol;
@@ -38,10 +42,11 @@ node* _e(size_t count, ...);
 #define e(...) _e(PP_NARG(__VA_ARGS__), __VA_ARGS__)
 
 // for internal use
-node* p(proc fp);
+node* p(fp impl, node* args);
 node* copy(node *n);
 node* deepcopy(node *n);
 
+int nodelength(node *n);
 void printexpr(node *n);
 
 #endif
