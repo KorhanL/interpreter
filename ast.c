@@ -8,6 +8,7 @@ node* n(int x) {
 	node *n = malloc(sizeof(node));
 	n->type = NUMBER;
 	n->value.number = x;
+	n->tail = 0;
 
 	return n;
 }
@@ -17,6 +18,7 @@ node* s(char c) {
 	node *n = malloc(sizeof(node));
 	n->type = SYMBOL;
 	n->value.symbol = c;
+	n->tail = 0;
 
 	return n;
 }
@@ -24,16 +26,14 @@ node* s(char c) {
 node* nil() {
 	node *n = malloc(sizeof(node));
 	n->type = NIL;
+	n->tail = 0;
 
 	return n;
 }
 
-// create an EXPRESSION
-node* e(int count, ...) {
-	if (count < 1)
-		//TODO: Better exception handling
-		exit(1);
-
+// create an EXPRESSION using macro magic to automatically
+// include the amount of arguments
+node* _e(size_t count, ...) {
 	va_list args;
 	va_start(args, count);
 	node* h = va_arg(args, node*);
@@ -46,15 +46,18 @@ node* e(int count, ...) {
 	node *n = malloc(sizeof(node));
 	n->type = EXPRESSION;
 	n->value.expression = h;
+	n->tail = 0;
 
 	return n;
 }
+
 
 // create a PROCEDURE
 node* p(proc fp) {
 	node *n = malloc(sizeof(node));
 	n->type = PROCEDURE;
 	n->value.procedure = fp;
+	n->tail = 0;
 
 	return n;
 }
@@ -64,6 +67,7 @@ node* copy(node *c) {
 	node *n = malloc(sizeof(node));
 	n->type = c->type;
 	n->value = c->value;
+	n->tail = 0;
 
 	return n;
 }
@@ -93,7 +97,6 @@ void printexpr(node *n) {
 		printf("null pointer node");
 	else {
 		switch(n->type) {
-			// nothing to evaluate, just continue as usual
 			case NUMBER:
 				printf("%d", n->value.number);
 				break;
@@ -112,7 +115,9 @@ void printexpr(node *n) {
 				printf("S:%c", n->value.symbol);
 				break;
 		}
-		if (n->tail)
+		if (n->tail) {
+			printf(" ");
 			printexpr(n->tail);
+		}
 	}
 }

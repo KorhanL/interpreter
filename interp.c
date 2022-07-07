@@ -112,12 +112,12 @@ int main() {
 	envput(&env, 'l', b(&let));
 	*/
 
-	node *expr = e(3,
+	node *expr = e(
 			s('*'),
 			n(10),
-			e(3,
+			e(
 				s('-'),
-				e(3,
+				e(
 					s('+'),
 					n(3),
 					n(6)),
