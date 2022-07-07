@@ -31,8 +31,7 @@ node* nil() {
 	return n;
 }
 
-// create an EXPRESSION using macro magic to automatically
-// include the amount of arguments
+// create an EXPRESSION
 node* _e(size_t count, ...) {
 	va_list args;
 	va_start(args, count);
