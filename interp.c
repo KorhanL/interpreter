@@ -4,15 +4,15 @@
 #include "env.h"
 
 
-void die(char *reason) {
+void die(char* reason) {
 	printf("Oh no! %s :(\n", reason);
 	exit(1);
 }
 
-node *eval(node* n, envnode *env);
+node* eval(node* n, envnode* env);
 
 
-node *add(node* rand, envnode* env) {
+node* add(node* rand, envnode* env) {
 	int sum = 0;
 	while (rand) {
 		rand = eval(rand, env);
@@ -25,7 +25,7 @@ node *add(node* rand, envnode* env) {
 	return n(sum);
 }
 
-node *mul(node *rand, envnode *env) {
+node* mul(node* rand, envnode* env) {
 	int prod = 1;
 	while (rand) {
 		rand = eval(rand, env);
@@ -67,7 +67,7 @@ node *print(node* rand, envnode* env) {
 }
 
 
-node *eval(node* n, envnode *env) {
+node *eval(node* n, envnode* env) {
 	if (!n)
 		die("eval was called with null pointer");
 	node *r = 0;

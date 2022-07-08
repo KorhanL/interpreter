@@ -21,13 +21,13 @@ typedef struct Procedure {
 
 typedef union NValue {
 	char symbol;
-	node *expression;
+	node* expression;
 	proc procedure;
 	int number;
 } nvalue;
 
 struct Node {
-	node *tail;
+	node* tail;
 	ntype type;
 	nvalue value;
 };
@@ -43,10 +43,10 @@ node* _e(size_t count, ...);
 
 // for internal use
 node* p(fp impl, node* args);
-node* copy(node *n);
-node* deepcopy(node *n);
+node* copy(node* n);
+node* deepcopy(node* n);
 
-int nodelength(node *n);
-void printexpr(node *n);
+int nodelength(node* n);
+void printexpr(node* n);
 
 #endif

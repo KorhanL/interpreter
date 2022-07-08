@@ -5,7 +5,7 @@
 
 // create a NUMBER
 node* n(int x) {
-	node *n = malloc(sizeof(node));
+	node* n = malloc(sizeof(node));
 	n->type = NUMBER;
 	n->value.number = x;
 	n->tail = 0;
@@ -15,7 +15,7 @@ node* n(int x) {
 
 // create a SYMBOL
 node* s(char c) {
-	node *n = malloc(sizeof(node));
+	node* n = malloc(sizeof(node));
 	n->type = SYMBOL;
 	n->value.symbol = c;
 	n->tail = 0;
@@ -25,7 +25,7 @@ node* s(char c) {
 
 // create a NIL
 node* nil() {
-	node *n = malloc(sizeof(node));
+	node* n = malloc(sizeof(node));
 	n->type = NIL;
 	n->tail = 0;
 
@@ -43,7 +43,7 @@ node* _e(size_t count, ...) {
 		p = p->tail;
 	}
 
-	node *n = malloc(sizeof(node));
+	node* n = malloc(sizeof(node));
 	n->type = EXPRESSION;
 	n->value.expression = h;
 	n->tail = 0;
@@ -53,7 +53,7 @@ node* _e(size_t count, ...) {
 
 // create a PROCEDURE
 node* p(fp impl, node* args) {
-	node *n = malloc(sizeof(node));
+	node* n = malloc(sizeof(node));
 	n->type = PROCEDURE;
 	n->value.procedure.impl = impl;
 	n->value.procedure.args = args;
@@ -63,8 +63,8 @@ node* p(fp impl, node* args) {
 }
 
 // copy a node
-node* copy(node *c) {
-	node *n = malloc(sizeof(node));
+node* copy(node* c) {
+	node* n = malloc(sizeof(node));
 	n->type = c->type;
 	n->value = c->value;
 	n->tail = 0;
@@ -72,10 +72,11 @@ node* copy(node *c) {
 	return n;
 }
 
-// deepcopy a node
+// deep copy a node
 // this also makes a copy of any subnodes the node has
-node* deepcopy(node *c) {
-	node *n = malloc(sizeof(node));
+// TODO: fix edge cases
+node* deepcopy(node* c) {
+	node* n = malloc(sizeof(node));
 	n->type = c->type;
 
 	if (c->tail)
@@ -92,7 +93,7 @@ node* deepcopy(node *c) {
 }
 
 // get the length of a list of nodes
-int nodelength(node *n) {
+int nodelength(node* n) {
 	int count = 0;
 	while(n) {
 		count++;
@@ -103,7 +104,7 @@ int nodelength(node *n) {
 }
 
 // print an expression
-void _printexpr(node *n) {
+void _printexpr(node* n) {
 	if (!n)
 		printf("null pointer node");
 	else {
@@ -136,7 +137,7 @@ void _printexpr(node *n) {
 	}
 }
 
-void printexpr(node *n) {
+void printexpr(node* n) {
 	_printexpr(n);
 	printf("\n");
 }
