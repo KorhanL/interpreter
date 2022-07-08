@@ -94,14 +94,16 @@ node* deepcopy(node *c) {
 // get the length of a list of nodes
 int nodelength(node *n) {
 	int count = 0;
-	while((n = n->tail))
+	while(n) {
 		count++;
+		n = n->tail;
+	}
 
 	return count;
 }
 
 // print an expression
-void printexpr(node *n) {
+void _printexpr(node *n) {
 	if (!n)
 		printf("null pointer node");
 	else {
@@ -114,13 +116,13 @@ void printexpr(node *n) {
 				break;
 			case EXPRESSION:
 				printf("(");
-				printexpr(n->value.expression);
+				_printexpr(n->value.expression);
 				printf(")");
 				break;
 			case PROCEDURE:
 				printf("[");
 				printf("%p ", n->value.procedure.impl);
-				printexpr(n->value.procedure.args);
+				_printexpr(n->value.procedure.args);
 				printf("]");
 				break;
 			case SYMBOL:
@@ -129,7 +131,12 @@ void printexpr(node *n) {
 		}
 		if (n->tail) {
 			printf(" ");
-			printexpr(n->tail);
+			_printexpr(n->tail);
 		}
 	}
+}
+
+void printexpr(node *n) {
+	_printexpr(n);
+	printf("\n");
 }
