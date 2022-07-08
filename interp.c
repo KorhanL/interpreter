@@ -38,7 +38,7 @@ node* mul(node* rand, envnode* env) {
 	return n(prod);
 }
 
-node *sub(node* rand, envnode* env) {
+node* sub(node* rand, envnode* env) {
 	int a = 0, b = 0;
 	int length = nodelength(rand);
 	if (length == 1) {
@@ -61,16 +61,16 @@ node *sub(node* rand, envnode* env) {
 	return n(a - b);
 }
 
-node *print(node* rand, envnode* env) {
+node* print(node* rand, envnode* env) {
 	printexpr(rand);
 	return eval(rand, env);
 }
 
 
-node *eval(node* n, envnode* env) {
+node* eval(node* n, envnode* env) {
 	if (!n)
 		die("eval was called with null pointer");
-	node *r = 0;
+	node* r = 0;
 	switch(n->type) {
 		// These evaluate to themselves
 		case NIL:
@@ -113,7 +113,7 @@ node *eval(node* n, envnode* env) {
 }
 
 int main() {
-	envnode *env = 0;
+	envnode* env = 0;
 
 	envput(&env, '+', p(&add, 0));
 	envput(&env, '-', p(&sub, 0));
@@ -122,7 +122,7 @@ int main() {
 	envput(&env, 'p', p(&print, 0));
 	envput(&env, '3', n(3));
 
-	node *expr;
+	node* expr;
 
 	expr = e(s('+'),
 			s('3'),
